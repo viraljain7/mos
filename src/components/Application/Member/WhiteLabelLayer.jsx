@@ -2,15 +2,13 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { Link } from "react-router-dom";
 import MemberShimmerUi from "./Shimmer/MemberShimmerUI";
-import AddWhiteLabelModel from "./Modal/AddWhiteLabelModal";
-import {   Search } from "lucide-react";
+import { Search } from "lucide-react";
 import MemberActionBtnModal from "./Modal/MemberActionBtnModal";
 import { useDispatch } from "react-redux";
 import { setMemberUserID } from "../../../rtk/features/MemberUserId/MemberUserIdSlice";
 import Pagination from "../AccStmt/Modal/Pagination";
 import { toast } from "react-toastify";
 import AddNewAgent from "./Modal/AddNewAgent";
-
 
 //white label member
 const WhiteLabelLayer = () => {
@@ -99,41 +97,42 @@ const WhiteLabelLayer = () => {
     setStatusFilter(value);
     setCurrentPage(1); // Reset to first page when filtering
   };
-    const toggleHandler = useCallback( async(userId) => {
-        const API_URL = `${import.meta.env.VITE_APP_API_KEY}/member/transaction`;
-        if (!userId) {
-          toast.error('Please enter a User ID');
-          return;
+  const toggleHandler = useCallback(
+    async (userId) => {
+      const API_URL = `${import.meta.env.VITE_APP_API_KEY}/member/transaction`;
+      if (!userId) {
+        toast.error("Please enter a User ID");
+        return;
+      }
+
+      try {
+        const formData = new FormData();
+        formData.append("type", "status");
+        formData.append("user_id", userId);
+
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.statuscode === "TXN") {
+          toast.success(data.message || "Status retrieved successfully");
+          fetchWhiteLabelData(); // Refresh the data after successful status change
+        } else {
+          throw new Error(data.message || "Failed to fetch transactions");
         }
-    
-        try {
-          const formData = new FormData();
-          formData.append('type', 'status');
-          formData.append('user_id', userId);
-    
-          const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-            body: formData,
-          });
-    
-          const data = await response.json();
-    
-          if (response.ok && data.statuscode === 'TXN') {
-            toast.success(data.message || 'Status retrieved successfully');
-            fetchWhiteLabelData(); // Refresh the data after successful status change
-          } else {
-            throw new Error(data.message || 'Failed to fetch transactions');
-          }
-        } catch (error) {
-          toast.error(error.message);
-          console.error('API Error:', error);
-        } 
-      },[fetchWhiteLabelData]);
-  
-  
+      } catch (error) {
+        toast.error(error.message);
+        console.error("API Error:", error);
+      }
+    },
+    [fetchWhiteLabelData]
+  );
 
   return (
     <div className="card">
@@ -179,16 +178,15 @@ const WhiteLabelLayer = () => {
             value={statusFilter}
             onChange={(e) => handleStatusFilter(e.target.value)}
           >
-            <option value="Select Status" >
-              Select Status
-            </option>
+            <option value="Select Status">Select Status</option>
             <option value="Paid">Paid</option>
             <option value="Pending">Pending</option>
           </select>
 
-          {/* <AddWhiteLabelModel updateList={fetchWhiteLabelData} /> */}
-          <AddNewAgent memberId="6"/>
-
+          <AddNewAgent
+            role_name="Whitelabel"
+            updateList={fetchWhiteLabelData}
+          />
         </div>
       </div>
       <div className="card-body">
@@ -230,7 +228,7 @@ const WhiteLabelLayer = () => {
                           role="switch"
                           id="yes"
                           checked={data.status === "active"}
-                          onChange={() => toggleHandler(data.id)}  
+                          onChange={() => toggleHandler(data.id)}
                         />
                       </div>
                     </td>
@@ -256,9 +254,9 @@ const WhiteLabelLayer = () => {
                     </td>
                     <td>
                       <MemberActionBtnModal
-                        onClick={() =>{
+                        onClick={() => {
                           dispatch(setMemberUserID(Number(data.id)));
-                          localStorage.setItem('userId', Number(data.id));
+                          localStorage.setItem("userId", Number(data.id));
                         }}
                       />
                     </td>
@@ -270,11 +268,11 @@ const WhiteLabelLayer = () => {
         </div>
 
         <Pagination
-            currentPage={currentPage}
-            totalItems={filteredUsers.length}
-            itemsPerPage={itemsPerPage}
-            onPageChange={handlePageChange}
-          />
+          currentPage={currentPage}
+          totalItems={filteredUsers.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={handlePageChange}
+        />
       </div>
     </div>
   );

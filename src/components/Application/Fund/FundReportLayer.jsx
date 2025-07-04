@@ -1,157 +1,126 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import { Link } from "react-router-dom";
-import { toast,  } from "react-toastify";
-import FilterAllFundReport from "./Modal/FilterAllFundReport";
-import { ChevronsLeft, ChevronsRight, Search } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Button, Form, Table, Pagination, Spinner } from "react-bootstrap";
+import { toast } from "react-toastify";
+import { Search } from "lucide-react";
+import FilterAllFundModal from "./Modal/FilterAllFundReport";
 
-//API Manager Layer
 const FundReportLayer = () => {
-  const [user, setUser] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("Select Status");
+  const [transactions, setTransactions] = useState([]);
+  const [pagination, setPagination] = useState({
+    current_page: 1,
+    last_page: 1,
+    per_page: 10,
+    total: 0,
+  });
+  const [filters, setFilters] = useState({
+    bank: "",
+    status: "",
+    from_date: "",
+    to_date: "",
+    search: "",
+  });
+  const [loading, setLoading] = useState(false);
   const token = sessionStorage.getItem("token");
   const API = `${import.meta.env.VITE_APP_API_KEY}/fund/transaction`;
 
-  const fetchUserData = useCallback(() => {
-    const formData = new FormData();
-    formData.append("type", "fundreport"); // Append form data key-value pairs
+  const fetchTransactions = async (page = 1) => {
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("type", "fundreport");
+      formData.append(
+        "filters",
+        JSON.stringify({
+          ...filters,
+          page,
+          limit: pagination.per_page,
+        })
+      );
 
-    fetch(API, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`, // Pass the token here
-        // Do not add 'Content-Type' when sending FormData; it will be set automatically
-      },
-      body: formData, // Pass the FormData directly as the body
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.statuscode === "TXN") {
-          setUser(data.data);
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
+      const response = await fetch(API, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
       });
-  }, [API, token]); // Dependencies: API
+
+      const data = await response.json();
+
+      if (data.statuscode === "TXN") {
+        setTransactions(data.data.data);
+        setPagination({
+          current_page: data.data.current_page,
+          last_page: data.data.last_page,
+          per_page: data.data.per_page,
+          total: data.data.total,
+        });
+      } else {
+        toast.error(data.message || "Failed to fetch transactions");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("An error occurred while fetching data");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    fetchUserData();
-  }, [fetchUserData]);
+    fetchTransactions();
+  }, [filters, pagination.per_page]);
 
-  // Filter users based on search and status
-  const filteredUsers = user.filter((user) => {
-    const matchesSearch = searchTerm === "";
-    //  ||
-    // user.user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    // user.user.role.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    // user.fundbank.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    // user.fundbank.account?.includes(searchTerm) ||
-    // user.ref_id?.includes(searchTerm);
-    const matchesStatus =
-      statusFilter === "Select Status" || user.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
-
-  // Pagination calculations
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);
-
-  // Generate page numbers
-  const getPageNumbers = () => {
-    let pages = [];
-    for (let i = 1; i <= totalPages; i++) {
-      pages.push(i);
-    }
-    return pages;
-  };
-
-  // Handle page change
-  const handlePageChange = (pageNumber) => {
-    if (pageNumber >= 1 && pageNumber <= totalPages) {
-      setCurrentPage(pageNumber);
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= pagination.last_page) {
+      fetchTransactions(page);
     }
   };
 
-  // Handle items per page change
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters);
+    // Reset to first page when filters change
+    setPagination((prev) => ({ ...prev, current_page: 1 }));
+  };
+
   const handleItemsPerPageChange = (value) => {
-    setItemsPerPage(Number(value));
-    setCurrentPage(1); // Reset to first page when changing items per page
-  };
-
-  // Handle search
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1); // Reset to first page when searching
-  };
-
-  // Handle status filter
-  const handleStatusFilter = (value) => {
-    setStatusFilter(value);
-    setCurrentPage(1); // Reset to first page when filtering
-  };
-
-  const handleSwitchChange = (id) => {
-    const formData = new FormData();
-    formData.append("type", "status");
-    formData.append("api_id", id); // Append updated name here
-
-    fetch(`${API}`, {
-      // Use the correct URL for the update endpoint
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`, // Pass the token here
-        // Do not add 'Content-Type' when sending FormData; it will be set automatically
-      },
-      body: formData,
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.statuscode === "TXN") {
-          toast.success(data.message);
-
-          fetchUserData(); // Re-fetch data to reflect the changes
-        } else {
-          toast.error("Error updating the user.");
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        alert("Something went wrong!");
-      });
+    setPagination((prev) => ({
+      ...prev,
+      per_page: Number(value),
+      current_page: 1, // Reset to first page when changing items per page
+    }));
   };
 
   return (
     <div className="card">
-      {/* <ToastContainer /> */}
       <div className="card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
         <div className="d-flex flex-wrap align-items-center gap-3">
           <div className="d-flex align-items-center gap-2">
             <span>Show</span>
-            <select
-              className="form-select form-select-sm w-auto"
-              value={itemsPerPage}
+            <Form.Select
+              className="w-auto"
+              size="sm"
+              value={pagination.per_page}
               onChange={(e) => handleItemsPerPageChange(e.target.value)}
             >
               <option value={10}>10</option>
               <option value={25}>25</option>
               <option value={50}>50</option>
               <option value={100}>100</option>
-            </select>
+            </Form.Select>
           </div>
           <div className="icon-field">
-            <input
+            <Form.Control
               type="text"
-              name="#0"
-              className="form-control form-control-sm w-auto"
+              size="sm"
+              className="w-auto"
               placeholder="Search"
-              value={searchTerm}
-              onChange={handleSearch}
+              value={filters.search}
+              onChange={(e) =>
+                handleFilterChange({
+                  ...filters,
+                  search: e.target.value,
+                })
+              }
             />
             <span className="icon">
               <Search size={18} />
@@ -159,124 +128,208 @@ const FundReportLayer = () => {
           </div>
         </div>
         <div className="d-flex flex-wrap align-items-center gap-3">
-          <Link
-            to="#"
-            className="btn btn-sm btn-success px-20 py-6 radius-4 d-inline-flex align-items-center gap-1"
-          >
-            <Icon icon="solar:download-linear" className="text-xl" />
+          <Button variant="success" size="sm">
             Export
-          </Link>
-          <FilterAllFundReport />
+          </Button>
+          <FilterAllFundModal
+            onApplyFilters={handleFilterChange}
+            currentFilters={filters}
+          />
         </div>
       </div>
+
       <div className="card-body">
-        <div className="table-responsive scroll-sm">
-          <table className="table striped-table sm-table mb-0">
-            <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">User Details</th>
-                <th scope="col">Reference Details</th>
-                <th scope="col">Amount</th>
-                <th scope="col">Remark </th>
-                <th scope="col">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentItems.map((data) => (
-                <tr key={data.id}>
-                  <td className="fw-bold">
-                    {data.id}
-                    <br />
-                    {data.created_at}
-                  </td>
-                  <td>
-                    name {"NA"} ({data.user_id}) <br />
-                    <span className="badge text-sm fw-semibold text-neutral-800 bg-neutral-300 px-10 py-2 radius-4 text-white">
-                      {/* {data.user.role.name} */}
-                    </span>
-                  </td>
-                  <td>
-                    Bank Name: {"NA"} <br /> Account No.: ({"Na"}) <br /> Ref: (
-                    {data.fundbank_id})
-                  </td>
+        {loading ? (
+          <div className="text-center py-5">
+            <Spinner animation="border" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+          </div>
+        ) : (
+          <>
+            <div className="table-responsive scroll-sm">
+              <Table striped hover size="sm">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>User Details</th>
+                    <th>Reference Details</th>
+                    <th>Amount</th>
+                    <th>Remark</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {transactions.length > 0 ? (
+                    transactions.map((txn) => (
+                      <TransactionRow key={txn.id} transaction={txn} />
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="6" className="text-center py-4">
+                        No transactions found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </Table>
+            </div>
 
-                  <td>{data.amount}</td>
-
-                  <td>{data.remark}</td>
-
-                  <td>
-                    {data.status === "approved" ? (
-                      <span className="bg-success-focus text-success-main px-16 py-4 rounded-pill fw-medium text-sm">
-                        {data.status}
-                      </span>
-                    ) : data.status === "rejected" ? (
-                      <span className="bg-danger-focus text-danger-main px-16 py-4 rounded-pill fw-medium text-sm">
-                        {data.status}
-                      </span>
-                    ) : (
-                      <span className="bg-warning-focus text-warning-main px-16 py-4 rounded-pill fw-medium text-sm">
-                        {data.status}
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-24">
-          <span>
-            Showing {indexOfFirstItem + 1} to{" "}
-            {Math.min(indexOfLastItem, filteredUsers.length)} of{" "}
-            {filteredUsers.length} entries
-          </span>
-          <ul className="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center">
-            <li className="page-item">
-              <Link
-                className="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px me-8 w-32-px bg-base"
-                to="#"
-                onClick={() => handlePageChange(currentPage - 1)}
-                style={{
-                  pointerEvents: currentPage === 1 ? "none" : "auto",
-                  opacity: currentPage === 1 ? 0.5 : 1,
-                }}
-              >
-                <ChevronsLeft size={18} />
-              </Link>
-            </li>
-            {getPageNumbers().map((number) => (
-              <li className="page-item" key={number}>
-                <Link
-                  className={`page-link fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px me-8 w-32-px ${
-                    currentPage === number
-                      ? "bg-primary-600 text-white"
-                      : "bg-primary-50 text-secondary-light"
-                  }`}
-                  to="#"
-                  onClick={() => handlePageChange(number)}
-                >
-                  {number}
-                </Link>
-              </li>
-            ))}
-            <li className="page-item">
-              <Link
-                className="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px me-8 w-32-px bg-base"
-                to="#"
-                onClick={() => handlePageChange(currentPage + 1)}
-                style={{
-                  pointerEvents: currentPage === totalPages ? "none" : "auto",
-                  opacity: currentPage === totalPages ? 0.5 : 1,
-                }}
-              >
-                <ChevronsRight size={20} />
-              </Link>
-            </li>
-          </ul>
-        </div>
+            {pagination.total > 0 && (
+              <AdvancedPagination
+                currentPage={pagination.current_page}
+                totalPages={pagination.last_page}
+                totalItems={pagination.total}
+                itemsPerPage={pagination.per_page}
+                onPageChange={handlePageChange}
+              />
+            )}
+          </>
+        )}
       </div>
+    </div>
+  );
+};
+
+const TransactionRow = ({ transaction }) => (
+  <tr className="fw-semibold">
+    <td>
+      {transaction.id}
+      <br />
+      <small className="text-muted">{transaction.created_at}</small>
+    </td>
+    <td>
+      {transaction.user?.name} <br />
+      <span className="badge text-sm fw-semibold text-neutral-800 bg-neutral-300 px-10 py-2 radius-4">
+        {transaction.user?.role?.name}
+      </span>
+    </td>
+    <td>
+      Bank: {transaction.fundbank?.name} <br />
+      Account: {transaction.fundbank?.account} <br />
+      Ref: {transaction?.ref_id}
+    </td>
+    <td className="align-middle">
+      <span className="badge text-sm fw-semibold text-lilac-600 bg-lilac-100 px-20 py-9 radius-4">
+        {transaction.amount}
+      </span>
+    </td>
+    <td className="align-middle">{transaction.remark}</td>
+    <td className="text-center align-middle">
+      <StatusBadge status={transaction.status} />
+    </td>
+  </tr>
+);
+
+const StatusBadge = ({ status }) => {
+  const statusClasses = {
+    approved: "bg-success-focus text-success-main",
+    rejected: "bg-danger-focus text-danger-main",
+    pending: "bg-warning-focus text-warning-main",
+  };
+
+  return (
+    <span
+      className={`${
+        statusClasses[status] || ""
+      } px-16 py-4 rounded-pill fw-medium text-sm`}
+    >
+      {status}
+    </span>
+  );
+};
+
+const AdvancedPagination = ({
+  currentPage,
+  totalPages,
+  totalItems,
+  itemsPerPage,
+  onPageChange,
+}) => {
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+    const halfVisiblePages = Math.floor(maxVisiblePages / 2);
+
+    let startPage = Math.max(1, currentPage - halfVisiblePages);
+    let endPage = Math.min(totalPages, currentPage + halfVisiblePages);
+
+    if (currentPage - halfVisiblePages < 1) {
+      endPage = Math.min(totalPages, maxVisiblePages);
+    }
+
+    if (currentPage + halfVisiblePages > totalPages) {
+      startPage = Math.max(1, totalPages - maxVisiblePages + 1);
+    }
+
+    if (startPage > 1) {
+      pages.push(1);
+      if (startPage > 2) {
+        pages.push("...");
+      }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        pages.push("...");
+      }
+      pages.push(totalPages);
+    }
+
+    return pages;
+  };
+
+  const pages = getPageNumbers();
+
+  // Calculate showing X to Y of Z entries
+  const startItem = (currentPage - 1) * itemsPerPage + 1;
+  const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+
+  return (
+    <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-24">
+      <div className="d-flex align-items-center gap-2">
+        <span className="text-muted">
+          Showing {startItem} to {endItem} of {totalItems} entries
+        </span>
+      </div>
+
+      <Pagination className="mb-0">
+        <Pagination.First
+          onClick={() => onPageChange(1)}
+          disabled={currentPage === 1}
+        />
+        <Pagination.Prev
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        />
+
+        {pages.map((page, index) =>
+          page === "..." ? (
+            <Pagination.Ellipsis key={`ellipsis-${index}`} disabled />
+          ) : (
+            <Pagination.Item
+              key={page}
+              active={page === currentPage}
+              onClick={() => onPageChange(page)}
+            >
+              {page}
+            </Pagination.Item>
+          )
+        )}
+
+        <Pagination.Next
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        />
+        <Pagination.Last
+          onClick={() => onPageChange(totalPages)}
+          disabled={currentPage === totalPages}
+        />
+      </Pagination>
     </div>
   );
 };

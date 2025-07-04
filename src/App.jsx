@@ -66,6 +66,7 @@ import PgPage from "./pages/Application/Services/PgPage.jsx";
 import { useIdleTimer } from "react-idle-timer";
 import { useEffect, useState } from "react";
 import useLogoutAndHomeRedirect from "./components/Application/hooks/useLogoutAndHomeRedirect.js";
+import NewOnBoardModal from "./components/Application/Dashboard/modal/NewOnBoardModal.jsx";
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [remainingTime, setRemainingTime] = useState(0);
@@ -108,6 +109,15 @@ function App() {
 
         <Route path="/" element={<SignInPage />} />
 
+        <Route
+          exact
+          path="/onboarding"
+          element={
+            <ProtectedRoute>
+              <NewOnBoardModal />
+            </ProtectedRoute>
+          }
+        />
         {/* new  Start*/}
         {/* <Route exact path='/' element={<SignInPage />} /> */}
         <Route
@@ -488,7 +498,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-          <Route
+        <Route
           exact
           path="/all-transaction-report"
           element={

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { Link } from "react-router-dom";
-import { toast,  } from "react-toastify";
+import { toast } from "react-toastify";
 import ActionRequestModal from "./Modal/ActionRequestModal";
 import Filter from "./Modal/Filter";
 import { ChevronsLeft, ChevronsRight, Search } from "lucide-react";
@@ -31,7 +31,7 @@ const RequestFund = () => {
       .then((res) => res.json())
       .then((data) => {
         if (data.statuscode === "TXN") {
-          setUser(data.data);
+          setUser(data.data.data);
         }
       })
       .catch((error) => {
@@ -210,11 +210,7 @@ const RequestFund = () => {
 
                   {/* Attachment */}
                   <td>
-                    <a
-                      href={data.payslip}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
+                    <a href={data.payslip} target="_blank" rel="noreferrer">
                       <img
                         src={data.payslip}
                         alt="slip"
@@ -232,19 +228,19 @@ const RequestFund = () => {
                   <td>{data.remark}</td>
 
                   <td>
-                  {data.status === "approved" ? (
-  <span className="bg-success-focus text-success-main px-16 py-4 rounded-pill fw-medium text-sm">
-    {data.status}
-  </span>
-) : data.status === "rejected" ? (
-  <span className="bg-danger-focus text-danger-main px-16 py-4 rounded-pill fw-medium text-sm">
-    {data.status}
-  </span>
-) : (
-  <span className="bg-warning-focus text-warning-main px-16 py-4 rounded-pill fw-medium text-sm">
-    {data.status}
-  </span>
-)}
+                    {data.status === "approved" ? (
+                      <span className="bg-success-focus text-success-main px-16 py-4 rounded-pill fw-medium text-sm">
+                        {data.status}
+                      </span>
+                    ) : data.status === "rejected" ? (
+                      <span className="bg-danger-focus text-danger-main px-16 py-4 rounded-pill fw-medium text-sm">
+                        {data.status}
+                      </span>
+                    ) : (
+                      <span className="bg-warning-focus text-warning-main px-16 py-4 rounded-pill fw-medium text-sm">
+                        {data.status}
+                      </span>
+                    )}
                   </td>
                   <td>
                     {/* Transfer Return Modal */}

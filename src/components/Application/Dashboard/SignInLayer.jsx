@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Phone, Lock, Eye, EyeOff } from "lucide-react";
-import { toast  } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import ForgotPasswordLayer from "./UserProfile/ForgotPasswordLayer";
@@ -121,7 +121,10 @@ const SignInLayer = () => {
     <section className="auth bg-base d-flex flex-wrap">
       {/* <ToastContainer /> */}
       <div className="auth-left d-lg-block d-none">
-        <div className="d-flex align-items-center flex-column h-100 justify-content-center " style={{"backgroundColor":"white"}} >
+        <div
+          className="d-flex align-items-center flex-column h-100 justify-content-center "
+          style={{ backgroundColor: "white" }}
+        >
           {/* <img
             src={"assets/images/loginNexa.webp"}
             className=" h-100 w-full"
@@ -142,7 +145,7 @@ const SignInLayer = () => {
         <div className="max-w-464-px mx-auto w-100">
           <div>
             <div className="mb-40 max-w-290-px">
-             <img
+              <img
                 src="https://i.ibb.co/ynKrDqY9/Transact.png"
                 alt="Logo"
                 width={300}
@@ -197,10 +200,10 @@ const SignInLayer = () => {
             </div>
 
             <div className="my-32 d-flex align-items-center gap-3">
-            {/* 
+              {/* 
               {["otp", "mpin"].map((type) => (
              */}
-              {["otp"].map((type) => (
+              {["otp", "mpin"].map((type) => (
                 <button
                   key={type}
                   type="button"
@@ -245,7 +248,7 @@ const SignInLayer = () => {
                 Forgot Password?
               </button>
             </div> */}
-            <ForgotPasswordLayer/>
+            <ForgotPasswordLayer />
 
             {isOtpBoxVisible && (
               <div className="position-relative  mt-8">

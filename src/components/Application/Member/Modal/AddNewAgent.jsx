@@ -1,45 +1,84 @@
-import { useState } from 'react';
-import { Modal, Button,Form } from 'react-bootstrap';
-import { toast } from 'react-toastify';
+import { useState } from "react";
+import { Modal, Button, Form } from "react-bootstrap";
+import { toast } from "react-toastify";
 
-function AddNewAgent() {
+function AddNewAgent({ role_name, updateList }) {
   const [show, setShow] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const onHide = () => setShow(false);
-  const onShow=() => setShow(true);
-
+  const onShow = () => setShow(true);
 
   const [formData, setFormData] = useState({
-    companyName: '',
-    personName: '',
-    email: '',
-    mobile: '', 
-    city: ''
+    companyName: "",
+    personName: "",
+    email: "",
+    mobile: "",
+    city: "",
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onHide();
-    toast.success("submitted Form")
-    setFormData({
-    companyName: '',
-    personName: '',
-    email: '',
-    mobile: '',
-    city: ''
-    })
-    // Handle form submission here
-    console.log('Form submitted:', formData);
-    setShow(false);
+    setIsSubmitting(true);
+
+    try {
+      const token = sessionStorage.getItem("token");
+      const API = `${import.meta.env.VITE_APP_API_KEY}/member/add_agent`;
+
+      const formDataToSend = new FormData();
+      formDataToSend.append("name", formData.personName);
+      formDataToSend.append("email", formData.email);
+      formDataToSend.append("mobile", formData.mobile);
+      formDataToSend.append("shopname", formData.companyName);
+      formDataToSend.append("city", formData.city);
+      formDataToSend.append("role_name", role_name);
+
+      const response = await fetch(API, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formDataToSend,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || data.statuscode === "ERR") {
+        throw new Error(data.message || "Failed to add agent");
+      }
+
+      if (data.statuscode === "TXN") {
+        toast.success(data.message || "Agent added successfully!");
+        updateList && updateList();
+
+        // Reset form and close modal
+        setFormData({
+          companyName: "",
+          personName: "",
+          email: "",
+          mobile: "",
+          city: "",
+        });
+        setShow(false);
+      } else {
+        throw new Error(data.message || "Unexpected response from server");
+      }
+    } catch (error) {
+      console.error("Error adding agent:", error);
+      toast.error(error.message || "Failed to add agent");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
   return (
     <>
       <button
@@ -52,8 +91,10 @@ function AddNewAgent() {
         Add New Agent
       </button>
 
-      <Modal show={show} onHide={onHide}
-      dialogClassName="modal-dialog-right "
+      <Modal
+        show={show}
+        onHide={onHide}
+        dialogClassName="modal-dialog-right "
         contentClassName="h-100"
         backdropClassName="modal-backdrop-right"
       >
@@ -61,7 +102,7 @@ function AddNewAgent() {
           <h6>Create New Agent</h6>
         </Modal.Header>
         <Modal.Body>
-        <Form onSubmit={handleSubmit}>
+          <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3">
               <Form.Label>Company Name</Form.Label>
               <Form.Control
@@ -70,8 +111,7 @@ function AddNewAgent() {
                 value={formData.companyName}
                 onChange={handleChange}
                 required
-                placeholder='Enter Company Name'
-
+                placeholder="Enter Company Name"
               />
             </Form.Group>
 
@@ -83,7 +123,7 @@ function AddNewAgent() {
                 value={formData.personName}
                 onChange={handleChange}
                 required
-                placeholder='Enter Your Name'
+                placeholder="Enter Your Name"
               />
             </Form.Group>
 
@@ -95,8 +135,7 @@ function AddNewAgent() {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                placeholder='Enter Email Address'
-
+                placeholder="Enter Email Address"
               />
             </Form.Group>
 
@@ -108,8 +147,7 @@ function AddNewAgent() {
                 value={formData.mobile}
                 onChange={handleChange}
                 required
-                placeholder='Enter Your Mobile Number'
-
+                placeholder="Enter Your Mobile Number"
               />
             </Form.Group>
 
@@ -121,30 +159,38 @@ function AddNewAgent() {
                 value={formData.city}
                 onChange={handleChange}
                 required
-                placeholder='Enter Your City'
+                placeholder="Enter Your City"
               />
             </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
-        <div className="d-flex w-100 gap-8">
-          <div className="w-50">
-            <Button variant="secondary" onClick={onHide} className="w-100">
-              Close
-            </Button>
+          <div className="d-flex w-100 gap-8">
+            <div className="w-50">
+              <Button
+                variant="secondary"
+                onClick={onHide}
+                className="w-100"
+                disabled={isSubmitting}
+              >
+                Close
+              </Button>
+            </div>
+            <div className="w-50">
+              <Button
+                variant="primary"
+                className="w-100"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Submitting..." : "Submit"}
+              </Button>
+            </div>
           </div>
-          <div className="w-50">
-            <Button variant="primary" className="w-100" onClick={handleSubmit}>
-              Submit
-            </Button>
-          </div>
-        </div>
         </Modal.Footer>
       </Modal>
-
-
-    
     </>
   );
 }
+
 export default AddNewAgent;

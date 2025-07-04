@@ -1,17 +1,17 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { Link, } from "react-router-dom";
+import { Link } from "react-router-dom";
 import MemberShimmerUi from "./Shimmer/MemberShimmerUI";
-import AddApiUserModel from "./Modal/AddApiUserModal";
-import {  Search } from "lucide-react";
+import { Search } from "lucide-react";
 import Pagination from "../AccStmt/Modal/Pagination";
 import MemberActionBtnModal from "./Modal/MemberActionBtnModal";
 import { setMemberUserID } from "../../../rtk/features/MemberUserId/MemberUserIdSlice";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
+import AddNewAgent from "./Modal/AddNewAgent";
 
 const ApiUserLayer = () => {
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -96,42 +96,42 @@ const ApiUserLayer = () => {
     setCurrentPage(1); // Reset to first page when filtering
   };
 
-
-  const toggleHandler = useCallback( async(userId) => {
+  const toggleHandler = useCallback(
+    async (userId) => {
       const API_URL = `${import.meta.env.VITE_APP_API_KEY}/member/transaction`;
       if (!userId) {
-        toast.error('Please enter a User ID');
+        toast.error("Please enter a User ID");
         return;
       }
-  
+
       try {
         const formData = new FormData();
-        formData.append('type', 'status');
-        formData.append('user_id', userId);
-  
+        formData.append("type", "status");
+        formData.append("user_id", userId);
+
         const response = await fetch(API_URL, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
           body: formData,
         });
-  
+
         const data = await response.json();
-  
-        if (response.ok && data.statuscode === 'TXN') {
-          toast.success(data.message || 'Status retrieved successfully');
+
+        if (response.ok && data.statuscode === "TXN") {
+          toast.success(data.message || "Status retrieved successfully");
           fetchApiUserData(); // Refresh the data after successful status change
         } else {
-          throw new Error(data.message || 'Failed to fetch transactions');
+          throw new Error(data.message || "Failed to fetch transactions");
         }
       } catch (error) {
         toast.error(error.message);
-        console.error('API Error:', error);
-      } 
-    },[fetchApiUserData]);
-
-
+        console.error("API Error:", error);
+      }
+    },
+    [fetchApiUserData]
+  );
 
   return (
     <div className="card">
@@ -184,7 +184,7 @@ const ApiUserLayer = () => {
             <option value="Pending">Pending</option>
           </select>
 
-          <AddApiUserModel updateList={fetchApiUserData} />
+          <AddNewAgent role_name="ApiUser" updateList={fetchApiUserData} />
         </div>
       </div>
       <div className="card-body">
@@ -226,8 +226,7 @@ const ApiUserLayer = () => {
                           role="switch"
                           id="yes"
                           checked={data.status === "active"}
-                          onChange={()=>toggleHandler(data.id)}
-
+                          onChange={() => toggleHandler(data.id)}
                         />
                       </div>
                     </td>
@@ -252,10 +251,10 @@ const ApiUserLayer = () => {
                       </span>
                     </td>
                     <td>
-                    <MemberActionBtnModal
-                        onClick={() =>{
+                      <MemberActionBtnModal
+                        onClick={() => {
                           dispatch(setMemberUserID(Number(data.id)));
-                          localStorage.setItem('userId', Number(data.id));
+                          localStorage.setItem("userId", Number(data.id));
                         }}
                       />
                     </td>
@@ -267,11 +266,11 @@ const ApiUserLayer = () => {
         </div>
 
         <Pagination
-            currentPage={currentPage}
-            totalItems={filteredUsers.length}
-            itemsPerPage={itemsPerPage}
-            onPageChange={handlePageChange}
-          />
+          currentPage={currentPage}
+          totalItems={filteredUsers.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={handlePageChange}
+        />
       </div>
     </div>
   );
