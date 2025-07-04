@@ -1,0 +1,47 @@
+/* Shimmer Animation */
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: 200px 0;
+  }
+}
+
+.shimmer {
+  background: var(--neutral-200);
+  background-image: linear-gradient(
+    to right,
+    var(--neutral-200) 0%,
+    var(--neutral-100) 20%,
+    var(--neutral-300) 40%,
+    var(--neutral-200) 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 2000px 100%;
+  animation: shimmer 2s infinite linear;
+}
+
+.shimmer-line {
+  height: 16px;
+  width: 100%;
+  border-radius: 4px;
+}
+
+.shimmer-switch {
+  height: 22px;
+  width: 40px;
+  border-radius: 50px;
+}
+
+.shimmer-dropdown {
+  height: 30px;
+  width: 100%;
+  border-radius: 4px;
+}
+
+.shimmer-btn {
+  height: 30px;
+  width: 80px;
+  border-radius: 25px;
+}

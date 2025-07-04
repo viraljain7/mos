@@ -1,0 +1,88 @@
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-pulse > td > div,
+.animate-pulse > td > div > div {
+  background:     var(--neutral-200);
+  background-image: linear-gradient(
+    to right,
+    var(--neutral-200) 0%,
+    var(--neutral-100) 20%,
+    var(--neutral-200) 40%,
+    var(--neutral-300) 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 2000px 100%;
+  animation: shimmer 2s infinite linear;
+}
+
+/* Layout classes */
+.d-flex {
+  display: flex;
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
+.py-3 {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.me-12 {
+  margin-right: 3rem;
+}
+
+/* Shapes */
+.rounded {
+  border-radius: 0.25rem;
+}
+
+.rounded-full {
+  border-radius: 9999px;
+}
+
+/* Dimensions */
+.h-4 {
+  height: 1rem;
+}
+
+.h-8 {
+  height: 2rem;
+}
+
+.w-8 {
+  width: 2rem;
+}
+
+.w-20 {
+  width: 5rem;
+}
+
+.w-24 {
+  width: 6rem;
+}
+
+.w-32 {
+  width: 8rem;
+}
+
+/* Image specific */
+.img-w {
+  width: 60px;
+}
+
+.img-h {
+  height: 60px;
+}
+
+.bg-gray-200 {
+  background-color: #e5e7eb;
+}

@@ -1,0 +1,105 @@
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-pulse > div > div,
+.animate-pulse .bg-gray-200 {
+  background:     var(--neutral-200);
+  background-image: linear-gradient(
+    to right,
+    var(--neutral-200) 0%,
+    var(--neutral-100) 20%,
+    var(--neutral-200) 40%,
+    var(--neutral-300) 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 2000px 100%;
+  animation: shimmer 2s infinite linear;
+}
+
+/* Preserve your existing classes */
+.card {
+  border-radius: 12px;
+}
+
+.radius-12 {
+  border-radius: 12px;
+}
+
+.radius-8 {
+  border-radius: 8px;
+}
+
+.py-16 {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.px-24 {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.mb-8 {
+  margin-bottom: 8px;
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Dimensions */
+.h-5 {
+  height: 1.25rem;
+}
+
+.h-6 {
+  height: 1.5rem;
+}
+
+.h-8 {
+  height: 2rem;
+}
+
+.h-10 {
+  height: 2.5rem;
+}
+
+.w-24 {
+  width: 6rem;
+}
+
+.w-32 {
+  width: 8rem;
+}
+
+/* Layout */
+.d-flex {
+  display: flex;
+}
+
+.justify-content-center {
+  justify-content: center;
+}
+
+.align-items-center {
+  align-items: center;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.bg-gray-200 {
+  background-color: #e5e7eb;
+}
+
+.rounded {
+  border-radius: 0.25rem;
+}
