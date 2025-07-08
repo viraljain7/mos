@@ -14,7 +14,7 @@ function WaitModal({ modalOpen }) {
       <Modal.Body className="radius-16 bg-base">
         <div className="card h-100">
           <div className="card-body p-3 p-lg-5 d-flex flex-column align-items-center justify-content-center">
-            <Spinner animation="border" variant="primary" role="status">
+            <Spinner animation="border" role="status" variant="light">
               <span className="visually-hidden">Loading...</span>
             </Spinner>
             <h5 className="mt-3">Please Wait</h5>

@@ -175,7 +175,7 @@ const MasterLayout = ({ children }) => {
   return (
     <>
       {/* <NewOnBoardModal /> */}
-      {userStatus === "pending" && <PendingKyc modalOpen={true} />}
+      {userStatus === "pending" && <NewOnBoardModal />}
       {userStatus === "submitted" && <SubmittedKyc modalOpen={true} />}
       {userStatus === "rejected" && <RejectedKycModal modalOpen={true} />}
       {userStatus === "verified" && <PasswordChangeModal />}
