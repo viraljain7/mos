@@ -272,23 +272,79 @@ const Step5VideoKYCInfo = ({ nextStep, prevStep }) => {
     return (
       <div className="verification-container">
         <h6 className="text-md text-neutral-500 mb-4">
-          Verification Guidelines
+          Verification Guidelines / सत्यापन दिशा-निर्देश
         </h6>
         {error && <div className="alert alert-danger mb-3">{error}</div>}
+
         <div className="card">
           <div className="card-body">
             <div className="alert alert-primary">
-              <h6>Please read these instructions carefully:</h6>
-              <ol className="mb-0">
-                <li>Make sure you're in a well-lit area</li>
-                <li>Keep your face clearly visible</li>
-                <li>Speak the following numbers clearly:</li>
-              </ol>
-            </div>
+              <h6>Video Consent Requirements / वीडियो सहमति आवश्यकताएँ:</h6>
 
-            <div className="text-center my-4 py-4 border rounded bg-light">
-              <h2 className="display-4">{randomCode}</h2>
-              <p className="text-muted">Speak these numbers during recording</p>
+              <div className="consent-guide mb-4">
+                <div className="english-guide mb-3 p-3 bg-light rounded">
+                  <h6 className="fw-bold">English:</h6>
+                  <p>
+                    "My name is [Your Full Name], my Aadhaar number is [Your
+                    Aadhaar]. My PAN card number is [Your PAN]. I want to use
+                    MOS Utility Retailer/Distributor ID [ID Number]. I request
+                    you to kindly activate my ID. I will ensure I collect all
+                    KYC documents from customers for every transaction. I take
+                    full responsibility for any fraudulent activity under my ID
+                    and will provide required documents for any chargebacks."
+                  </p>
+                </div>
+
+                <div className="hindi-guide p-3 bg-light rounded">
+                  <h6 className="fw-bold">हिंदी:</h6>
+                  <p>
+                    "मेरा नाम [आपका पूरा नाम] है, मेरा आधार नंबर [आपका आधार] है।
+                    मेरा पैन कार्ड नंबर [आपका पैन] है। मैं MOS यूटिलिटी
+                    रिटेलर/डिस्ट्रीब्यूटर आईडी [आईडी नंबर] का उपयोग करना चाहता
+                    हूँ। कृपया मेरा आईडी सक्रिय करें। मैं सुनिश्चित करूँगा कि
+                    प्रत्येक लेन-देन में ग्राहक से सभी केवाईसी दस्तावेज़ लूँ।
+                    मेरे आईडी के तहत किसी भी धोखाधड़ी की गतिविधि की पूरी
+                    जिम्मेदारी मेरी होगी और किसी भी चार्जबैक के लिए आवश्यक
+                    दस्तावेज़ प्रदान करूँगा।"
+                  </p>
+                </div>
+              </div>
+
+              <h6 className="mt-4">
+                Recording Instructions / रिकॉर्डिंग निर्देश:
+              </h6>
+              <div className="row">
+                <div className="col-md-12">
+                  <ol>
+                    <li>
+                      Be in a well-lit area / अच्छी रोशनी वाले स्थान पर रहें
+                    </li>
+                    <li>
+                      Keep your face clearly visible / अपना चेहरा स्पष्ट दिखाई
+                      दे
+                    </li>
+                    <li>
+                      Speak clearly and slowly / स्पष्ट और धीरे-धीरे बोलें
+                    </li>
+                  </ol>
+                </div>
+                <div className="col-md-12">
+                  <ol start="4">
+                    <li>
+                      State the consent in your preferred language / अपनी
+                      पसंदीदा भाषा में सहमति दें
+                    </li>
+                    <li>
+                      Show your ID documents to camera / अपने आईडी दस्तावेज़
+                      कैमरे पर दिखाएँ
+                    </li>
+                    <li>
+                      Keep recording until confirmation / पुष्टि होने तक
+                      रिकॉर्डिंग जारी रखें
+                    </li>
+                  </ol>
+                </div>
+              </div>
             </div>
 
             <div className="d-flex justify-content-between mt-4">
@@ -297,17 +353,24 @@ const Step5VideoKYCInfo = ({ nextStep, prevStep }) => {
                   setError(null);
                   setVerificationStep("initial");
                 }}
-                className="btn btn-neutral-500"
+                className="btn btn-outline-secondary"
                 disabled={loading}
               >
                 Back
               </button>
               <button
                 onClick={startRecording}
-                className="btn btn-primary-600"
+                className="btn btn-primary"
                 disabled={loading}
               >
-                {loading ? "Preparing Camera..." : "Start Recording"}
+                {loading ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2"></span>
+                    Preparing Camera...
+                  </>
+                ) : (
+                  "Start Recording"
+                )}
               </button>
             </div>
           </div>
@@ -315,7 +378,6 @@ const Step5VideoKYCInfo = ({ nextStep, prevStep }) => {
       </div>
     );
   }
-
   // Recording screen
   if (verificationStep === "recording") {
     return (

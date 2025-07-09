@@ -107,8 +107,15 @@ function App() {
       <Routes>
         {/* Auth Setting */}
 
-        <Route path="/" element={<SignInPage />} />
-
+        {/* <Route path="/" element={<SignInPage />} /> */}
+        <Route
+          path="/"
+          element={
+            <AuthRedirect>
+              <SignInPage />
+            </AuthRedirect>
+          }
+        />
         <Route
           exact
           path="/onboarding"
@@ -627,6 +634,12 @@ function App() {
 
 export default App;
 
+const AuthRedirect = ({ children }) => {
+  const token = sessionStorage.getItem("token");
+  if (token) return <Navigate to="/dashboard" replace />;
+  return <>{children}</>;
+};
+
 const ProtectedRoute = ({ children }) => {
   // Retrieve the token from localStorage (or wherever it's stored)
   const token = sessionStorage.getItem("token");
@@ -640,4 +653,4 @@ const ProtectedRoute = ({ children }) => {
   return <>{children}</>;
 };
 
-export { ProtectedRoute };
+export { ProtectedRoute, AuthRedirect };
