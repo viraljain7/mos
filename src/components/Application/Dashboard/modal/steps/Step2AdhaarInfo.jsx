@@ -13,6 +13,16 @@ const Step2AdhaarInfo = ({ nextStep }) => {
   const [refId, setRefId] = useState("");
   const [orderId, setOrderId] = useState("");
 
+  const resetAadhaarVerification = () => {
+    setAadhaarNumber("");
+    setOtp("");
+    setShowOtpVerification(false);
+    setError(null);
+    setSuccess(null);
+    setRefId("");
+    setOrderId("");
+  };
+
   const sendOtp = async (e) => {
     e.preventDefault();
     if (aadhaarNumber.length !== 12) {
@@ -237,10 +247,19 @@ const Step2AdhaarInfo = ({ nextStep }) => {
                           {loading ? "Verifying..." : "Verify OTP"}
                         </button>
                       </div>
-                      <small className="text-muted">
-                        Enter the 6-digit OTP sent to your Aadhaar registered
-                        mobile
-                      </small>
+                      <div className="d-flex justify-content-between mt-2 gap-5">
+                        <small className="text-muted">
+                          Enter the 6-digit OTP sent to your Aadhaar registered
+                          mobile
+                        </small>
+                        <button
+                          className="text-primary-600 cursor-pointer bg-transparent border-0 p-0 text-decoration-underline"
+                          onClick={resetAadhaarVerification}
+                          disabled={loading}
+                        >
+                          Re-enter Aadhaar number
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>

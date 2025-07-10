@@ -183,10 +183,7 @@ const WhiteLabelLayer = () => {
             <option value="Pending">Pending</option>
           </select>
 
-          <AddNewAgent
-            role_name="Whitelabel"
-            updateList={fetchWhiteLabelData}
-          />
+          <AddNewAgent role_id={2} updateList={fetchWhiteLabelData} />
         </div>
       </div>
       <div className="card-body">

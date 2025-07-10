@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { toast } from "react-toastify";
 
-function AddNewAgent({ role_name, updateList }) {
+function AddNewAgent({ role_id, updateList }) {
   const [show, setShow] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -31,7 +31,7 @@ function AddNewAgent({ role_name, updateList }) {
 
     try {
       const token = sessionStorage.getItem("token");
-      const API = `${import.meta.env.VITE_APP_API_KEY}/member/add_agent`;
+      const API = `${import.meta.env.VITE_APP_API_KEY}/member/create`;
 
       const formDataToSend = new FormData();
       formDataToSend.append("name", formData.personName);
@@ -39,7 +39,7 @@ function AddNewAgent({ role_name, updateList }) {
       formDataToSend.append("mobile", formData.mobile);
       formDataToSend.append("shopname", formData.companyName);
       formDataToSend.append("city", formData.city);
-      formDataToSend.append("role_name", role_name);
+      formDataToSend.append("role_id", role_id);
 
       const response = await fetch(API, {
         method: "POST",

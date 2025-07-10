@@ -184,10 +184,7 @@ const DistributorLayer = () => {
             <option value="Pending">Pending</option>
           </select>
 
-          <AddNewAgent
-            role_name="Distributor"
-            updateList={fetchDistributorData}
-          />
+          <AddNewAgent role_id={6} updateList={fetchDistributorData} />
         </div>
       </div>
       <div className="card-body">

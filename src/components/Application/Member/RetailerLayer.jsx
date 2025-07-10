@@ -183,7 +183,7 @@ const RetailerLayer = () => {
             <option value="Pending">Pending</option>
           </select>
 
-          <AddNewAgent role_name="Retailer" updateList={fetchRetailerData} />
+          <AddNewAgent role_id={7} updateList={fetchRetailerData} />
         </div>
       </div>
       <div className="card-body">

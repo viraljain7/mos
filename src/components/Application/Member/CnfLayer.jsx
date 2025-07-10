@@ -183,7 +183,7 @@ const CnfLayer = () => {
             <option value="Pending">Pending</option>
           </select>
 
-          <AddNewAgent role_name="CNF" updateList={fetchCnfData} />
+          <AddNewAgent role_id={3} updateList={fetchCnfData} />
         </div>
       </div>
       <div className="card-body">

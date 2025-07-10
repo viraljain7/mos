@@ -184,10 +184,7 @@ const MasterDistributorLayer = () => {
             <option value="Pending">Pending</option>
           </select>
 
-          <AddNewAgent
-            role_name="MasterDistributor"
-            updateList={fetchMasterDistributorData}
-          />
+          <AddNewAgent role_id={5} updateList={fetchMasterDistributorData} />
         </div>
       </div>
       <div className="card-body">

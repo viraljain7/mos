@@ -184,7 +184,7 @@ const ApiUserLayer = () => {
             <option value="Pending">Pending</option>
           </select>
 
-          <AddNewAgent role_name="ApiUser" updateList={fetchApiUserData} />
+          <AddNewAgent role_id={4} updateList={fetchApiUserData} />
         </div>
       </div>
       <div className="card-body">
